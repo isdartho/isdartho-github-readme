@@ -46,7 +46,8 @@ const GRAPHQL_STATS_QUERY = `
       login
       contributionsCollection {
         totalCommitContributions,
-        totalPullRequestReviewContributions
+        totalPullRequestReviewContributions,
+        restrictedContributionsCount
       }
       repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
         totalCount
@@ -231,10 +232,7 @@ const fetchStats = async (
   if (!username) {
     throw new MissingParamError(["username"]);
   }
-  //Adding private contribution counts
-  if (count_private) {
-    stats.totalCommits += user.contributionsCollection.restrictedContributionsCount;
-  }
+
 
   const stats = {
     name: "",
@@ -288,6 +286,11 @@ const fetchStats = async (
     stats.totalCommits = await totalCommitsFetcher(username);
   } else {
     stats.totalCommits = user.contributionsCollection.totalCommitContributions;
+  }
+
+  //Adding private contribution counts
+  if (count_private) {
+    stats.totalCommits += user.contributionsCollection.restrictedContributionsCount;
   }
 
   stats.totalPRs = user.pullRequests.totalCount;
