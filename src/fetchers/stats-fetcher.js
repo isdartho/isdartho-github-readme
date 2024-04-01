@@ -221,6 +221,7 @@ const totalCommitsFetcher = async (username) => {
  */
 const fetchStats = async (
   username,
+  count_private = true,
   include_all_commits = false,
   exclude_repo = [],
   include_merged_pull_requests = false,
@@ -229,6 +230,10 @@ const fetchStats = async (
 ) => {
   if (!username) {
     throw new MissingParamError(["username"]);
+  }
+  //Adding private contribution counts
+  if (count_private) {
+    stats.totalCommits += user.contributionsCollection.restrictedContributionsCount;
   }
 
   const stats = {
